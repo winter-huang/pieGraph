@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>饼图数据分析</title>
+    <style>
+        canvas {
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+<canvas width="800" height="600"></canvas>
+<script>
+    function MySector() {
+    }
+    MySector.prototype = {
+        //转换角度
+        getAngle: function (angle) {
+            return angle / 180 * Math.PI;
+        },
+        //获取颜色
+        getColor: function () {
+            return 'rgb(' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ')';
+        },
+        //获取多个角度
+        getAngleArr: function (option) {
+            var sum = 0;
+            option.forEach(function (item) {
+                sum += item.value;
+            });
+            var angleArr = option.map(function (item) {
+                return item.value / sum * 360;
+            });
+            return angleArr;
+        },
+        getSector: function (x, y, r, option) {
+            var cs = document.querySelector('canvas');
+            var ctx = cs.getContext('2d');
+            var startAngle = -90;
+            var angleArr = this.getAngleArr(option);
+            for (var i = 0; i < angleArr.length; i++) {
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.arc(x, y, r, this.getAngle(startAngle), this.getAngle(startAngle + angleArr[i]));
+                ctx.closePath();
+                ctx.fillStyle = this.getColor();
+                ctx.fill();
+
+                var x1 = x + Math.cos(this.getAngle(startAngle + angleArr[i] / 2)) * (r + 20);
+                var y1 = y + Math.sin(this.getAngle(startAngle + angleArr[i] / 2)) * (r + 20);
+                ctx.font = 'italic small-caps bold 16px 微软雅黑';
+                var txtW = ctx.measureText(option[i].msg).width;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x1, y1);
+                if (x1 > x) {
+                    ctx.lineTo(x1 + txtW, y1);
+                    ctx.textAlign = 'left';
+                } else {
+                    ctx.lineTo(x1 - txtW, y1);
+                    ctx.textAlign = 'right';
+                }
+                if (y1 > y) {
+                    ctx.textBaseline = 'top';
+                } else {
+                    ctx.textBaseline = 'bottom';
+                }
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = ctx.fillStyle;
+                ctx.stroke();
+                ctx.fillText(option[i].msg, x1, y1);
+                startAngle += angleArr[i];
+            }
+        }
+    };
+
+
+    var datas = [
+        {
+            value: 290,
+            msg: '前端工程师'
+        },
+        {
+            value: 130,
+            msg: 'java工程师'
+        },
+        {
+            value: 260,
+            msg: 'UI工程师'
+        },
+        {
+            value: 50,
+            msg: '产品经理'
+        },
+        {
+            value: 80,
+            msg: '项目经理'
+        },
+        {
+            value: 190,
+            msg: 'php工程师'
+        }
+    ];
+    var sector = new MySector();
+    sector.getSector(200, 120, 100, datas);
+    sector.getSector(550, 400, 150, datas);
+    sector.getSector(600, 120, 80, datas);
+    sector.getSector(150, 450, 60, datas);
+
+
+</script>
+</body>
+</html>
